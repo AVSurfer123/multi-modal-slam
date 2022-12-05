@@ -188,4 +188,19 @@
     <origin xyz="-0.032 0 0.198" rpy="0 0 0"/>
   </joint>
 
+  <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/>
+  <xacro:VLP-16 parent="base_link" name="velodyne" topic="/velodyne_points" organize_cloud="false" hz="20" samples="440" gpu="true">
+    <!-- <origin xyz="0 0 0.02" rpy="0 0 0" /> -->
+    <origin xyz="-0.032 0 0.172" rpy="0 0 0"/>
+  </xacro:VLP-16>  
+
+  <xacro:include filename="$(find mmslam)/urdf/livox.xacro"/>
+  <xacro:Livox_AVIA name="livox" visualize="true"/>
+
+  <joint name="livox_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="livox_base"/>
+    <origin xyz="-0.032 0 .198"/>
+  </joint>
+
 </robot>
