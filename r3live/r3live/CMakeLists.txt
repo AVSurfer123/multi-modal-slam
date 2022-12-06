@@ -26,6 +26,7 @@ find_package(catkin REQUIRED COMPONENTS
                     tf
                     cv_bridge
                     livox_ros_driver
+                    velodyne_pcl
             )
 
 # find_package(Ceres REQUIRED)

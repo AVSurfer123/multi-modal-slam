@@ -1,5 +1,5 @@
 Lidar_front_end:
-   lidar_type: 2   # 1 for Livox-avia, 3 for Ouster-OS1-64
+   lidar_type: 2   # 1 for Livox-avia, 2 for VLP16, 3 for Ouster-OS1-64
    N_SCANS: 6
    using_raw_point: 1
    point_step: 1
@@ -16,8 +16,9 @@ r3live_common:
    append_global_map_point_step: 4  # The point step of append point to global map. [default = 4]
 
 r3live_vio:
-   image_width: 1280
-   image_height: 1024
+   camera_info_topic: "/camera/camera_info"
+   image_width: 960
+   image_height: 1280
    camera_intrinsic:
       [863.4241, 0.0, 640.6808,
       0.0,  863.4171, 518.3392,

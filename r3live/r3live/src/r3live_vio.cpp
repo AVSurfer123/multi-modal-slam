@@ -49,6 +49,7 @@ Dr. Fu Zhang < fuzhang@hku.hk >.
 // #include "photometric_error.hpp"
 #include "tools_mem_used.h"
 #include "tools_logger.hpp"
+#include <sensor_msgs/CameraInfo.h>
 
 Common_tools::Cost_time_logger              g_cost_time_logger;
 std::shared_ptr< Common_tools::ThreadPool > m_thread_pool_ptr;
@@ -432,14 +433,30 @@ void   R3LIVE::process_image( cv::Mat &temp_img, double msg_time )
 
 void R3LIVE::load_vio_parameters()
 {
-
     std::vector< double > camera_intrinsic_data, camera_dist_coeffs_data, camera_ext_R_data, camera_ext_t_data;
-    m_ros_node_handle.getParam( "r3live_vio/image_width", m_vio_image_width );
-    m_ros_node_handle.getParam( "r3live_vio/image_height", m_vio_image_heigh );
-    m_ros_node_handle.getParam( "r3live_vio/camera_intrinsic", camera_intrinsic_data );
-    m_ros_node_handle.getParam( "r3live_vio/camera_dist_coeffs", camera_dist_coeffs_data );
-    m_ros_node_handle.getParam( "r3live_vio/camera_ext_R", camera_ext_R_data );
-    m_ros_node_handle.getParam( "r3live_vio/camera_ext_t", camera_ext_t_data );
+
+    std::string camera_info_topic;
+    m_ros_node_handle.param<std::string>( "r3live_vio/camera_info_topic", camera_info_topic, "");
+    if (camera_info_topic != "") {
+        auto camera_info = ros::topic::waitForMessage<sensor_msgs::CameraInfo>(camera_info_topic);
+        m_vio_image_heigh = camera_info->height;
+        m_vio_image_width = camera_info->width;
+        camera_intrinsic_data.insert(camera_intrinsic_data.end(), camera_info->K.begin(), camera_info->K.end());
+        camera_dist_coeffs_data.insert(camera_dist_coeffs_data.end(), camera_info->D.begin(), camera_info->D.end());
+        camera_ext_R_data.insert(camera_ext_R_data.end(), camera_info->R.begin(), camera_info->R.end());
+        camera_ext_t_data.insert(camera_ext_t_data.end(), camera_info->P.begin() + 8, camera_info->P.begin() + 11);
+
+        // tf::TransformListener listener;
+        // bool success = listener.waitForTransform("")
+    }
+    else {
+        m_ros_node_handle.getParam( "r3live_vio/image_width", m_vio_image_width );
+        m_ros_node_handle.getParam( "r3live_vio/image_height", m_vio_image_heigh );
+        m_ros_node_handle.getParam( "r3live_vio/camera_intrinsic", camera_intrinsic_data );
+        m_ros_node_handle.getParam( "r3live_vio/camera_dist_coeffs", camera_dist_coeffs_data );
+        m_ros_node_handle.getParam( "r3live_vio/camera_ext_R", camera_ext_R_data );
+        m_ros_node_handle.getParam( "r3live_vio/camera_ext_t", camera_ext_t_data );
+    }
 
     CV_Assert( ( m_vio_image_width != 0 && m_vio_image_heigh != 0 ) );
 
