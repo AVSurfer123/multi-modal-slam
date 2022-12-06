@@ -3,7 +3,7 @@
   <arg name="gui" default="true" />
   <arg name="gmapping" default="false" />
   <arg name="rviz" default="" />
-  <arg name="world" default="" />
+  <arg name="world" default="$(find mmslam)/worlds/car_1_junction.world" />
   <arg name="detector" default="" />
   <arg name="navigator" default="" />
   <arg name="publish_state" default="true" />
