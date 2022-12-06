@@ -25,7 +25,6 @@ find_package(catkin REQUIRED COMPONENTS
                     nav_msgs
                     tf
                     cv_bridge
-                    livox_ros_driver
                     velodyne_pcl
             )
 
@@ -71,7 +70,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
   ${PCL_INCLUDE_DIRS}
-  ${livox_ros_driver_INCLUDE_DIRS}
   ./src
   ./src/loam/include
   ./src/tools/

@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <livox_ros_driver/CustomMsg.h>
+// #include <livox_ros_driver/CustomMsg.h>
 #include <velodyne_pcl/point_types.h>
 #include "../tools/tools_logger.hpp"
 
@@ -80,7 +80,7 @@ int    point_filter_num;
 int    g_if_using_raw_point = 1;
 int    g_LiDAR_sampling_point_step = 3;
 void   mid_handler( const sensor_msgs::PointCloud2::ConstPtr &msg );
-void   horizon_handler( const livox_ros_driver::CustomMsg::ConstPtr &msg );
+// void   horizon_handler( const livox_ros_driver::CustomMsg::ConstPtr &msg );
 void   velo16_handler( const sensor_msgs::PointCloud2::ConstPtr &msg );
 void   velo16_handler1( const sensor_msgs::PointCloud2::ConstPtr &msg );
 void   oust64_handler( const sensor_msgs::PointCloud2::ConstPtr &msg );
@@ -132,10 +132,10 @@ int main( int argc, char **argv )
         sub_points = n.subscribe( "/livox/lidar", 1000, mid_handler, ros::TransportHints().tcpNoDelay() );
         break;
 
-    case HORIZON:
-        printf( "HORIZON\n" );
-        sub_points = n.subscribe( "/livox/lidar", 1000, horizon_handler, ros::TransportHints().tcpNoDelay() );
-        break;
+    // case HORIZON:
+    //     printf( "HORIZON\n" );
+    //     sub_points = n.subscribe( "/livox/lidar", 1000, horizon_handler, ros::TransportHints().tcpNoDelay() );
+    //     break;
 
     case VELO16:
         printf( "VELO16\n" );
@@ -193,98 +193,98 @@ void   mid_handler( const sensor_msgs::PointCloud2::ConstPtr &msg )
     pub_func( pl_corn, pub_corn, msg->header.stamp );
 }
 
-void horizon_handler( const livox_ros_driver::CustomMsg::ConstPtr &msg )
-{
-    double                                 t1 = omp_get_wtime();
-    vector< pcl::PointCloud< PointType > > pl_buff( N_SCANS );
-    vector< vector< orgtype > >            typess( N_SCANS );
-    pcl::PointCloud< PointType >           pl_full, pl_corn, pl_surf;
+// void horizon_handler( const livox_ros_driver::CustomMsg::ConstPtr &msg )
+// {
+//     double                                 t1 = omp_get_wtime();
+//     vector< pcl::PointCloud< PointType > > pl_buff( N_SCANS );
+//     vector< vector< orgtype > >            typess( N_SCANS );
+//     pcl::PointCloud< PointType >           pl_full, pl_corn, pl_surf;
 
-    uint plsize = msg->point_num;
+//     uint plsize = msg->point_num;
 
-    pl_corn.reserve( plsize );
-    pl_surf.reserve( plsize );
-    pl_full.resize( plsize );
+//     pl_corn.reserve( plsize );
+//     pl_surf.reserve( plsize );
+//     pl_full.resize( plsize );
 
-    for ( int i = 0; i < N_SCANS; i++ )
-    {
-        pl_buff[ i ].reserve( plsize );
-    }
-    // ANCHOR - remove nearing pts.
-    for ( uint i = 1; i < plsize; i++ )
-    {
-        // clang-format off
-        if ( ( msg->points[ i ].line < N_SCANS ) 
-            && ( !IS_VALID( msg->points[ i ].x ) ) 
-            && ( !IS_VALID( msg->points[ i ].y ) ) 
-            && ( !IS_VALID( msg->points[ i ].z ) )
-            && msg->points[ i ].x > 0.7 )
-        {
-            // https://github.com/Livox-SDK/Livox-SDK/wiki/Livox-SDK-Communication-Protocol
-            // See [3.4 Tag Information] 
-            if ( ( msg->points[ i ].x > 2.0 )
-                && ( ( ( msg->points[ i ].tag & 0x03 ) != 0x00 )  ||  ( ( msg->points[ i ].tag & 0x0C ) != 0x00 ) )
-                )
-            {
-                // Remove the bad quality points
-                continue;
-            }
-        // clang-format on
-            pl_full[ i ].x = msg->points[ i ].x;
-            pl_full[ i ].y = msg->points[ i ].y;
-            pl_full[ i ].z = msg->points[ i ].z;
-            pl_full[ i ].intensity = msg->points[ i ].reflectivity;
+//     for ( int i = 0; i < N_SCANS; i++ )
+//     {
+//         pl_buff[ i ].reserve( plsize );
+//     }
+//     // ANCHOR - remove nearing pts.
+//     for ( uint i = 1; i < plsize; i++ )
+//     {
+//         // clang-format off
+//         if ( ( msg->points[ i ].line < N_SCANS ) 
+//             && ( !IS_VALID( msg->points[ i ].x ) ) 
+//             && ( !IS_VALID( msg->points[ i ].y ) ) 
+//             && ( !IS_VALID( msg->points[ i ].z ) )
+//             && msg->points[ i ].x > 0.7 )
+//         {
+//             // https://github.com/Livox-SDK/Livox-SDK/wiki/Livox-SDK-Communication-Protocol
+//             // See [3.4 Tag Information] 
+//             if ( ( msg->points[ i ].x > 2.0 )
+//                 && ( ( ( msg->points[ i ].tag & 0x03 ) != 0x00 )  ||  ( ( msg->points[ i ].tag & 0x0C ) != 0x00 ) )
+//                 )
+//             {
+//                 // Remove the bad quality points
+//                 continue;
+//             }
+//         // clang-format on
+//             pl_full[ i ].x = msg->points[ i ].x;
+//             pl_full[ i ].y = msg->points[ i ].y;
+//             pl_full[ i ].z = msg->points[ i ].z;
+//             pl_full[ i ].intensity = msg->points[ i ].reflectivity;
 
-            pl_full[ i ].curvature = msg->points[ i ].offset_time / float( 1000000 ); // use curvature as time of each laser points
+//             pl_full[ i ].curvature = msg->points[ i ].offset_time / float( 1000000 ); // use curvature as time of each laser points
 
-            if ( ( std::abs( pl_full[ i ].x - pl_full[ i - 1 ].x ) > 1e-7 ) || ( std::abs( pl_full[ i ].y - pl_full[ i - 1 ].y ) > 1e-7 ) ||
-                 ( std::abs( pl_full[ i ].z - pl_full[ i - 1 ].z ) > 1e-7 ) )
-            {
-                pl_buff[ msg->points[ i ].line ].push_back( pl_full[ i ] );
-            }
-        }
-    }
-    if ( pl_buff.size() != N_SCANS )
-    {
-        return;
-    }
-    if ( pl_buff[ 0 ].size() <= 7 )
-    {
-        return;
-    }
-    for ( int j = 0; j < N_SCANS; j++ )
-    {
-        pcl::PointCloud< PointType > &pl = pl_buff[ j ];
-        vector< orgtype > &           types = typess[ j ];
-        plsize = pl.size();
-        if ( plsize < 7 )
-        {
-            continue;
-        }
-        types.resize( plsize );
-        plsize--;
-        for ( uint pt_idx = 0; pt_idx < plsize; pt_idx++ )
-        {
-            types[ pt_idx ].range = pl[ pt_idx ].x * pl[ pt_idx ].x + pl[ pt_idx ].y * pl[ pt_idx ].y;
-            vx = pl[ pt_idx ].x - pl[ pt_idx + 1 ].x;
-            vy = pl[ pt_idx ].y - pl[ pt_idx + 1 ].y;
-            vz = pl[ pt_idx ].z - pl[ pt_idx + 1 ].z;
-            // std::cout<<vx<<" "<<vx<<" "<<vz<<" "<<std::endl;
-        }
-        // plsize++;
-        types[ plsize ].range = pl[ plsize ].x * pl[ plsize ].x + pl[ plsize ].y * pl[ plsize ].y;
-        give_feature( pl, types, pl_corn, pl_surf );
-    }
-    if ( pl_surf.points.size() < 100 )
-    {
-        return;
-    }
-    ros::Time ct;
-    ct.fromNSec( msg->timebase );
-    pub_func( pl_full, pub_full, msg->header.stamp );
-    pub_func( pl_surf, pub_surf, msg->header.stamp );
-    pub_func( pl_corn, pub_corn, msg->header.stamp );
-}
+//             if ( ( std::abs( pl_full[ i ].x - pl_full[ i - 1 ].x ) > 1e-7 ) || ( std::abs( pl_full[ i ].y - pl_full[ i - 1 ].y ) > 1e-7 ) ||
+//                  ( std::abs( pl_full[ i ].z - pl_full[ i - 1 ].z ) > 1e-7 ) )
+//             {
+//                 pl_buff[ msg->points[ i ].line ].push_back( pl_full[ i ] );
+//             }
+//         }
+//     }
+//     if ( pl_buff.size() != N_SCANS )
+//     {
+//         return;
+//     }
+//     if ( pl_buff[ 0 ].size() <= 7 )
+//     {
+//         return;
+//     }
+//     for ( int j = 0; j < N_SCANS; j++ )
+//     {
+//         pcl::PointCloud< PointType > &pl = pl_buff[ j ];
+//         vector< orgtype > &           types = typess[ j ];
+//         plsize = pl.size();
+//         if ( plsize < 7 )
+//         {
+//             continue;
+//         }
+//         types.resize( plsize );
+//         plsize--;
+//         for ( uint pt_idx = 0; pt_idx < plsize; pt_idx++ )
+//         {
+//             types[ pt_idx ].range = pl[ pt_idx ].x * pl[ pt_idx ].x + pl[ pt_idx ].y * pl[ pt_idx ].y;
+//             vx = pl[ pt_idx ].x - pl[ pt_idx + 1 ].x;
+//             vy = pl[ pt_idx ].y - pl[ pt_idx + 1 ].y;
+//             vz = pl[ pt_idx ].z - pl[ pt_idx + 1 ].z;
+//             // std::cout<<vx<<" "<<vx<<" "<<vz<<" "<<std::endl;
+//         }
+//         // plsize++;
+//         types[ plsize ].range = pl[ plsize ].x * pl[ plsize ].x + pl[ plsize ].y * pl[ plsize ].y;
+//         give_feature( pl, types, pl_corn, pl_surf );
+//     }
+//     if ( pl_surf.points.size() < 100 )
+//     {
+//         return;
+//     }
+//     ros::Time ct;
+//     ct.fromNSec( msg->timebase );
+//     pub_func( pl_full, pub_full, msg->header.stamp );
+//     pub_func( pl_surf, pub_surf, msg->header.stamp );
+//     pub_func( pl_corn, pub_corn, msg->header.stamp );
+// }
 
 int orders[ 16 ] = { 0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15 };
 
