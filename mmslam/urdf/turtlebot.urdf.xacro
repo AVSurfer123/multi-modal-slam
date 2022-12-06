@@ -194,13 +194,13 @@
     <origin xyz="-0.032 0 0.172" rpy="0 0 0"/>
   </xacro:VLP-16>  
 
-  <xacro:include filename="$(find mmslam)/urdf/livox.xacro"/>
+  <!-- <xacro:include filename="$(find mmslam)/urdf/livox.xacro"/>
   <xacro:Livox_AVIA name="livox" visualize="false"/>
 
   <joint name="livox_joint" type="fixed">
     <parent link="base_link"/>
     <child link="livox_base"/>
     <origin xyz="-0.032 0 .198"/>
-  </joint>
+  </joint> -->
 
 </robot>
