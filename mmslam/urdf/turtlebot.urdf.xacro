@@ -185,7 +185,7 @@
   <joint name="camera_joint" type="fixed">
     <parent link="base_link"/>
     <child link="base_camera"/>
-    <origin xyz="-0.032 0 0.198" rpy="0 0 0"/>
+    <origin xyz="-0.032 0 0.298" rpy="0 0 0"/>
   </joint>
 
   <xacro:include filename="$(find velodyne_description)/urdf/VLP-16.urdf.xacro"/>
