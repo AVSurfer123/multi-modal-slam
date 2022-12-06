@@ -1,5 +1,5 @@
 Lidar_front_end:
-   lidar_type: 1   # 1 for Livox-avia, 3 for Ouster-OS1-64
+   lidar_type: 2   # 1 for Livox-avia, 3 for Ouster-OS1-64
    N_SCANS: 6
    using_raw_point: 1
    point_step: 1

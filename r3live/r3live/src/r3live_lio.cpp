@@ -494,7 +494,7 @@ int R3LIVE::service_LIO_update()
 {
     nav_msgs::Path path;
     path.header.stamp = ros::Time::now();
-    path.header.frame_id = "/world";
+    path.header.frame_id = "world";
     /*** variables definition ***/
     Eigen::Matrix< double, DIM_OF_STATES, DIM_OF_STATES > G, H_T_H, I_STATE;
     G.setZero();
@@ -1018,7 +1018,7 @@ int R3LIVE::service_LIO_update()
             /******* Publish Odometry ******/
             geometry_msgs::Quaternion geoQuat = tf::createQuaternionMsgFromRollPitchYaw( euler_cur( 0 ), euler_cur( 1 ), euler_cur( 2 ) );
             odomAftMapped.header.frame_id = "world";
-            odomAftMapped.child_frame_id = "/aft_mapped";
+            odomAftMapped.child_frame_id = "velodyne";
             odomAftMapped.header.stamp = ros::Time::now(); // ros::Time().fromSec(last_timestamp_lidar);
             odomAftMapped.pose.pose.orientation.x = geoQuat.x;
             odomAftMapped.pose.pose.orientation.y = geoQuat.y;
@@ -1040,10 +1040,11 @@ int R3LIVE::service_LIO_update()
             q.setY( odomAftMapped.pose.pose.orientation.y );
             q.setZ( odomAftMapped.pose.pose.orientation.z );
             transform.setRotation( q );
-            br.sendTransform( tf::StampedTransform( transform, ros::Time().fromSec( Measures.lidar_end_time ), "world", "/aft_mapped" ) );
+            transform = transform.inverse();
+
+            br.sendTransform(tf::StampedTransform(transform, ros::Time().fromSec( Measures.lidar_end_time ), "velodyne", "world" ));
 
             msg_body_pose.header.stamp = ros::Time::now();
-            msg_body_pose.header.frame_id = "/camera_odom_frame";
             msg_body_pose.pose.position.x = g_lio_state.pos_end( 0 );
             msg_body_pose.pose.position.y = g_lio_state.pos_end( 1 );
             msg_body_pose.pose.position.z = g_lio_state.pos_end( 2 );

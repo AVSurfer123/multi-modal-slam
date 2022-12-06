@@ -72,6 +72,7 @@ Dr. Fu Zhang < fuzhang@hku.hk >.
 #include <sensor_msgs/PointCloud2.h>
 #include <tf/transform_datatypes.h>
 #include <tf/transform_broadcaster.h>
+#include <tf/transform_listener.h>
 
 #include <geometry_msgs/Vector3.h>
 #include <FOV_Checker/FOV_Checker.h>
@@ -212,9 +213,9 @@ public:
     int effect_feat_num = 0, frame_num = 0;
     double filter_size_corner_min, m_voxel_downsample_size_surf, filter_size_map_min, fov_deg, deltaT, deltaR, aver_time_consu = 0, frame_first_pt_time = 0;
     double m_voxel_downsample_size_axis_z;
-    geometry_msgs::PoseStamped msg_body_pose;
     nav_msgs::Odometry odomAftMapped;
     PointType pointOri, pointSel, coeff;
+    geometry_msgs::PoseStamped msg_body_pose;
     pcl::VoxelGrid<PointType> downSizeFilterSurf;
     pcl::VoxelGrid<PointType> downSizeFilterMap;
     std::vector<double> m_initial_pose;
@@ -280,6 +281,8 @@ public:
     std::vector<std::shared_ptr<RGB_pts>> m_last_added_rgb_pts_vec;
     std::string m_map_output_dir;
     std::shared_ptr<std::shared_future<void> > m_render_thread = nullptr;
+
+    tf::StampedTransform lidarToBase;
     
     // VIO subsystem related
     void load_vio_parameters();
@@ -402,6 +405,13 @@ public:
             cout << ANSI_COLOR_BLUE_BOLD << "Create r3live output dir: " << m_map_output_dir << ANSI_COLOR_RESET << endl;
             Common_tools::create_dir(m_map_output_dir);
         }
+        tf::TransformListener listener;
+        bool success = listener.waitForTransform("base_footprint", "velodyne", ros::Time::now(), ros::Duration(2));
+        if (!success) {
+            std::cout << "Listener failed to find transform?\n";
+        }
+        listener.lookupTransform("base_footprint", "velodyne", ros::Time::now(), lidarToBase);        
+
         m_thread_pool_ptr = std::make_shared<Common_tools::ThreadPool>(6, true, false); // At least 5 threads are needs, here we allocate 6 threads.
         g_cost_time_logger.init_log( std::string(m_map_output_dir).append("/cost_time_logger.log"));
         m_map_rgb_pts.set_minmum_dis(m_minumum_rgb_pts_size);

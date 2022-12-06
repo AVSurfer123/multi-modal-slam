@@ -495,7 +495,6 @@ void R3LIVE::publish_camera_odom( std::shared_ptr< Image_frame > &image, double 
     vec_3              odom_t = image->m_pose_w2c_t;
     nav_msgs::Odometry camera_odom;
     camera_odom.header.frame_id = "world";
-    camera_odom.child_frame_id = "/aft_mapped";
     camera_odom.header.stamp = ros::Time::now(); // ros::Time().fromSec(last_timestamp_lidar);
     camera_odom.pose.pose.orientation.x = odom_q.x();
     camera_odom.pose.pose.orientation.y = odom_q.y();
@@ -1241,7 +1240,7 @@ void R3LIVE::service_VIO_update()
         tim.tic( "Pub" );
         double display_cost_time = std::accumulate( frame_cost_time_vec.begin(), frame_cost_time_vec.end(), 0.0 ) / frame_cost_time_vec.size();
         g_vio_frame_cost_time = display_cost_time;
-        // publish_render_pts( m_pub_render_rgb_pts, m_map_rgb_pts );
+        publish_render_pts( m_pub_render_rgb_pts, m_map_rgb_pts );
         publish_camera_odom( img_pose, message_time );
         // publish_track_img( op_track.m_debug_track_img, display_cost_time );
         publish_track_img( img_pose->m_raw_img, display_cost_time );

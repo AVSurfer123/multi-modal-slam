@@ -195,7 +195,7 @@
   </xacro:VLP-16>  
 
   <xacro:include filename="$(find mmslam)/urdf/livox.xacro"/>
-  <xacro:Livox_AVIA name="livox" visualize="true"/>
+  <xacro:Livox_AVIA name="livox" visualize="false"/>
 
   <joint name="livox_joint" type="fixed">
     <parent link="base_link"/>
